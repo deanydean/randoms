@@ -29,5 +29,5 @@ where [type] can be:
 * double
 * float
 * gaussian
-* bytes/[n] ([n] = number of bytes)
+* bytes/[n] - where [n] is number of bytes
 
