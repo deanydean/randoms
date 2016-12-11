@@ -1,0 +1,21 @@
+//
+// Main build file for Randoms
+apply plugin: "java"
+
+task run (type: JavaExec, dependsOn: classes){
+    if(project.hasProperty('appargs')){
+        args(appargs.split(','))
+    }
+    description = "Run Randoms Service"
+    main = "org.oddcyb.randoms.RandomService"
+    classpath = sourceSets.main.runtimeClasspath
+}
+ 
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "com.sparkjava:spark-core:2.5.3"
+}
