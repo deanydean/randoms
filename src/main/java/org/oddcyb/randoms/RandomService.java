@@ -16,6 +16,9 @@
 package org.oddcyb.randoms;
 
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.oddcyb.randoms.providers.BytesProvider;
 import spark.Spark;
 
@@ -24,6 +27,8 @@ import spark.Spark;
  */
 public class RandomService 
 {
+    public static final Logger LOG = 
+        Logger.getLogger(RandomService.class.getName());
     
     public static final String SERVICE_BASE = "/randoms";
     
@@ -34,6 +39,8 @@ public class RandomService
      */
     public void start()
     {
+        Spark.port(9999);
+
         // Register the basic numeric types
         Spark.get(SERVICE_BASE+"/long", (req,res) -> this.rng.nextLong());
         Spark.get(SERVICE_BASE+"/int", (req,res) -> this.rng.nextInt());
@@ -42,12 +49,24 @@ public class RandomService
         Spark.get(SERVICE_BASE+"/gaussian", (req,res) -> this.rng.nextGaussian());
         
         // Register the types we have providers for
-        Spark.get(SERVICE_BASE+"/bytes"+BytesProvider.params(), new BytesProvider(rng));
+        Spark.get(SERVICE_BASE+"/bytes/"+BytesProvider.params(), new BytesProvider(rng));
+        // TODO - UUID
+        // TODO - String
+        // TODO - Int with max
+
+        // Log exceptions
+        Spark.exception(Exception.class, (ex, req, resp) -> {
+            LOG.log(Level.WARNING, "Request {0} failed", req);
+            LOG.log(Level.WARNING, "Request error", ex);
+            
+            resp.status(500);
+        });
     }
     
     public static void main(String[] args)
     {
         new RandomService().start();
+        LOG.info("Started....");
     }
     
 }

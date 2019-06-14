@@ -10,7 +10,28 @@ task run (type: JavaExec, dependsOn: classes){
     main = "org.oddcyb.randoms.RandomService"
     classpath = sourceSets.main.runtimeClasspath
 }
- 
+
+jar {
+    manifest {
+        attributes "Main-Class": "org.oddcyb.randoms.RandomService"
+    }
+
+    from {
+        configurations.compile.collect { 
+            it.isDirectory() ? it : zipTree(it).matching {
+                exclude { it.path.contains("META-INF") }
+            }
+        }
+        
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it).matching {
+                exclude { it.path.contains("META-INF") }
+            }
+        }
+    }
+
+    archiveName = "randoms.jar"
+}
 
 repositories {
     mavenCentral()
