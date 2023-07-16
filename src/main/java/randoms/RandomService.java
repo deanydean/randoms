@@ -37,9 +37,9 @@ public class RandomService
     /**
      * Start the service.
      */
-    public void start()
+    public void start(int listenPort)
     {
-        Spark.port(9999);
+        Spark.port(listenPort);
 
         // Register the basic numeric types
         Spark.get(SERVICE_BASE+"/long", (req,res) -> this.rng.nextLong());
@@ -65,8 +65,10 @@ public class RandomService
     
     public static void main(String[] args)
     {
-        new RandomService().start();
-        LOG.info("Randoms service started. Listening on port 9999....");
+        int listenPort = (args.length > 0) ? Integer.parseInt(args[0]) : 9999;
+
+        new RandomService().start(listenPort);
+        LOG.info("Randoms service started. Listening on port "+listenPort+"....");
     }
     
 }
