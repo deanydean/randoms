@@ -1,36 +1,36 @@
 //
 // Main build file for Randoms
-apply plugin: "java"
+plugins {
+    id "java"
+}
 
 task run (type: JavaExec, dependsOn: classes){
     if(project.hasProperty('appargs')){
         args(appargs.split(','))
     }
     description = "Run Randoms Service"
-    main = "org.oddcyb.randoms.RandomService"
+    main = "randoms.RandomService"
     classpath = sourceSets.main.runtimeClasspath
 }
 
 jar {
     manifest {
-        attributes "Main-Class": "org.oddcyb.randoms.RandomService"
+        attributes "Main-Class": "randoms.RandomService"
     }
 
     from {
-        configurations.compile.collect { 
+        configurations.runtimeClasspath.collect {
             it.isDirectory() ? it : zipTree(it).matching {
-                exclude { it.path.contains("META-INF") }
-            }
-        }
-        
-        configurations.runtime.collect {
-            it.isDirectory() ? it : zipTree(it).matching {
-                exclude { it.path.contains("META-INF") }
+                exclude {
+                    it.path.contains("META-INF/ECLIPSE_") ||
+                    it.path.contains("module-info.class") ||
+                    it.path.contains("mozilla/public-suffix-list.txt")
+                }
             }
         }
     }
 
-    archiveName = "randoms.jar"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 repositories {
@@ -38,5 +38,7 @@ repositories {
 }
 
 dependencies {
-    compile "com.sparkjava:spark-core:2.5.3"
+    implementation "com.sparkjava:spark-core:2.5.3"
+    runtimeOnly "org.slf4j:slf4j-api:2.0.7"
+    runtimeOnly "org.slf4j:slf4j-nop:2.0.7"
 }

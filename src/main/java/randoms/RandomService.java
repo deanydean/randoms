@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Matt Dean
+ * Copyright 2023 Matt Dean
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.oddcyb.randoms;
+package randoms;
 
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.oddcyb.randoms.providers.BytesProvider;
+import randoms.providers.BytesProvider;
 import spark.Spark;
 
 /**
@@ -66,7 +66,7 @@ public class RandomService
     public static void main(String[] args)
     {
         new RandomService().start();
-        LOG.info("Started....");
+        LOG.info("Randoms service started. Listening on port 9999....");
     }
     
 }

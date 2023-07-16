@@ -1,5 +1,5 @@
 #
-# Copyright 2019 Matt Dean
+# Copyright 2023 Matt Dean
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,29 +14,17 @@
 # limitations under the License.
 #
 
-FROM gradle
-
-EXPOSE 9999
-
-ENV RANDOMS_HOME=/opt/randoms
-
 # Build everything we need
-ADD src ${RANDOMS_HOME}/src
-ADD build.gradle ${RANDOMS_HOME}/build.gradle
-ENV GRADLE_USER_HOME=${RANDOMS_HOME}
-WORKDIR ${RANDOMS_HOME}
-RUN mkdir -p "${RANDOMS_HOME}/.gradle" && \
-    echo "org.gradle.daemon=false" >> \
-        ${RANDOMS_HOME}/.gradle/gradle.properties && \
+FROM gradle as builder
+ADD src ./src
+ADD build.gradle ./build.gradle
+RUN mkdir -p ".gradle" && \
+    echo "org.gradle.daemon=false" >> .gradle/gradle.properties && \
     gradle build
-RUN mkdir -p ${RANDOMS_HOME}/lib && \
-    cp build/libs/randoms.jar ${RANDOMS_HOME}/lib/randoms.jar && \
-    rm -rf build .gradle
 
-# Set the runtime user
-RUN useradd --system --home ${RANDOMS_HOME} randoms
-RUN chown -R randoms ${RANDOMS_HOME}
-
-# Run the service
-USER randoms
-CMD java -jar "${RANDOMS_HOME}/lib/randoms.jar"
+# Create the runtime image
+FROM amazoncorretto:20-alpine
+COPY --from=builder /home/gradle/build/libs/gradle.jar \
+     /opt/randoms/randoms.jar
+EXPOSE 9999
+CMD [ "java", "-jar", "/opt/randoms/randoms.jar" ]
