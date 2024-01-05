@@ -19,7 +19,10 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import randoms.providers.AlphanumericProvider;
+import randoms.providers.Base64Provider;
 import randoms.providers.BytesProvider;
+import randoms.providers.UuidProvider;
 import spark.Spark;
 
 /**
@@ -30,7 +33,8 @@ public class RandomService
     public static final Logger LOG = 
         Logger.getLogger(RandomService.class.getName());
     
-    public static final String SERVICE_BASE = "/randoms";
+    public static final String SERVICE_BASE = 
+        System.getenv().getOrDefault("RANDOM_BASE_PATH", "");
     
     private final Random rng = new Random();
     
@@ -47,11 +51,28 @@ public class RandomService
         Spark.get(SERVICE_BASE+"/float", (req,res) -> this.rng.nextFloat());
         Spark.get(SERVICE_BASE+"/double", (req,res) -> this.rng.nextDouble());
         Spark.get(SERVICE_BASE+"/gaussian", (req,res) -> this.rng.nextGaussian());
+        Spark.get(SERVICE_BASE+"/boolean", (req,res) -> this.rng.nextBoolean());
+        Spark.get(SERVICE_BASE+"/bool", (req,res) -> this.rng.nextBoolean());
         
         // Register the types we have providers for
-        Spark.get(SERVICE_BASE+"/bytes/"+BytesProvider.params(), new BytesProvider(rng));
-        // TODO - UUID
-        // TODO - String
+        var bytesProvider = new BytesProvider(rng);
+        Spark.get(SERVICE_BASE+"/bytes", bytesProvider);
+        Spark.get(SERVICE_BASE+"/bytes"+BytesProvider.params(), bytesProvider);
+
+        var alphanumericProvider = new AlphanumericProvider(rng);
+        Spark.get(SERVICE_BASE+"/alphanum", alphanumericProvider);
+        Spark.get(SERVICE_BASE+"/string", alphanumericProvider);
+        Spark.get(SERVICE_BASE+"/str", alphanumericProvider);
+        Spark.get(SERVICE_BASE+"/alphanum"+AlphanumericProvider.params(), alphanumericProvider);
+        Spark.get(SERVICE_BASE+"/string"+AlphanumericProvider.params(), alphanumericProvider);
+        Spark.get(SERVICE_BASE+"/str"+AlphanumericProvider.params(), alphanumericProvider);
+
+        var base64Provider = new Base64Provider(rng);
+        Spark.get(SERVICE_BASE+"/base64", base64Provider);
+        Spark.get(SERVICE_BASE+"/base64"+Base64Provider.params(), base64Provider);
+
+        Spark.get(SERVICE_BASE+"/uuid", new UuidProvider());
+        
         // TODO - Int with max
 
         // Log exceptions

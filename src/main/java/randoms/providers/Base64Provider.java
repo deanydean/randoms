@@ -1,20 +1,6 @@
-/*
- * Copyright 2023 Matt Dean
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package randoms.providers;
 
+import java.util.Base64;
 import java.util.Random;
 import spark.Request;
 import spark.Response;
@@ -24,14 +10,14 @@ import spark.Spark;
 /**
  * Route that can provide a random number of bytes for the service.
  */
-public class BytesProvider implements Route
+public class Base64Provider implements Route
 {
     public static final String COUNT_PARAM = ":count";
     
     public static final int REQ_ERROR = 400;
-    public static final int DEFAULT_BYTES = 64;
+    public static final int DEFAULT_BYTES = 32;
     public static final int MAX_BYTES = 1024;
-    public static final String RESP_TYPE_BIN = "application/octet-stream";
+    public static final String RESP_TYPE_TEXT = "text/plain";
  
     private final Random rng;
     
@@ -41,7 +27,7 @@ public class BytesProvider implements Route
      * 
      * @param rng the RNG to use the generate the random bytes
      */
-    public BytesProvider(Random rng)
+    public Base64Provider(Random rng)
     {
         this.rng = rng;
     }
@@ -90,8 +76,8 @@ public class BytesProvider implements Route
         byte[] bytes = new byte[count];
         rng.nextBytes(bytes);
         
-        response.type(RESP_TYPE_BIN);
-        return bytes;
+        response.type(RESP_TYPE_TEXT);
+        return Base64.getEncoder().encodeToString(bytes);
     }
     
     /**
